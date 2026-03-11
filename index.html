@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Arena</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f1019;
+            --card-light: #1a1c2e;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff0077;
+            --neon-green: #00ff88;
+            --neon-gold: #ffcc00;
+            --text-white: #ffffff;
+            --text-gray: #8b8fa3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            position: relative;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Header --- */
+        .header {
+            height: 60px;
+            background: var(--card-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .header-title {
+            font-family: 'Orbitron';
+            font-size: 18px;
+            color: var(--neon-blue);
+            text-align: center;
+            flex: 1;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: auto;
+            padding: 5px;
+        }
+
+        .icon-btn:hover {
+            color: var(--neon-blue);
+        }
+
+        /* --- Footer --- */
+        .footer {
+            height: 50px;
+            background: var(--card-light);
+            display: flex;
+            justify-content: center;
+            /* Centered for credit */
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+
+        .footer-credit {
+            font-family: 'Orbitron';
+            font-size: 10px;
+            color: var(--neon-gold);
+            letter-spacing: 1px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Screens */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* 1. Login Screen */
+        .login-box {
+            margin: auto;
+            background: var(--card-light);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h2 {
+            font-family: 'Orbitron';
+            font-size: 28px;
+            background: linear-gradient(to right, var(--neon-blue), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .sub-text {
+            color: var(--neon-pink);
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--neon-blue);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron';
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--neon-blue), #0077ff);
+            color: black;
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 243, 255, 0.5);
+        }
+
+        .btn-friend {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid var(--neon-gold);
+        }
+
+        .btn-friend:hover {
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        /* 2. Level Select Screen */
+        .level-container {
+            padding: 20px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .lvl-title {
+            text-align: center;
+            font-family: 'Orbitron';
+            font-size: 24px;
+            margin: 20px 0;
+            color: var(--neon-gold);
+        }
+
+        .lvl-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .lvl-box {
+            background: var(--card-light);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .lvl-box:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-2px);
+        }
+
+        .lvl-box.locked {
+            opacity: 0.5;
+            filter: grayscale(1);
+            cursor: not-allowed;
+        }
+
+        .lvl-num {
+            font-family: 'Orbitron';
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .lvl-status {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+        }
+
+        /* 3. Game Screen */
+        .game-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .level-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            font-family: 'Orbitron';
+            font-size: 14px;
+            border: 1px solid var(--neon-gold);
+            color: var(--neon-gold);
+        }
+
+        .status {
+            margin-bottom: 20px;
+            text-align: center;
+            height: 40px;
+        }
+
+        .status h3 {
+            font-family: 'Orbitron';
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .blue {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .pink {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .green {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .gold {
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px var(--neon-gold);
+        }
+
+        /* Board */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 15px;
+            width: 280px;
+            margin-bottom: 30px;
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            background: var(--card-light);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron';
+            font-size: 40px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cell:hover {
+            background: #252840;
+        }
+
+        .cell.x {
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            animation: pop 0.3s;
+        }
+
+        .cell.o {
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+            animation: pop 0.3s;
+        }
+
+        .cell.win {
+            background: rgba(0, 255, 157, 0.15);
+            border-color: var(--neon-green);
+            animation: pulse 1s infinite;
+        }
+
+        .btn-again {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: auto;
+            padding: 10px 30px;
+        }
+
+        .btn-again:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Action Buttons Logic */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 250px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--neon-green), #00b85c);
+            color: black;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, var(--neon-pink), #cc0044);
+            color: white;
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Stats Display */
+        .stats-simple {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-family: 'Orbitron';
+        }
+
+        .stats-simple span {
+            margin: 0 5px;
+            font-weight: bold;
+        }
+
+        .s-w {
+            color: var(--neon-green);
+        }
+
+        .s-l {
+            color: var(--neon-pink);
+        }
+
+        .s-d {
+            color: var(--neon-gold);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-box {
+            background: var(--card-light);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .modal-box h3 {
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+        }
+
+        .backend-info {
+            text-align: left;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        /* Confetti */
+        #confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 500;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+            }
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            70% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 255, 157, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 255, 157, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left"></div>
+            <div class="header-title">TIC TAC TOE</div>
+            <div class="header-right">
+                <button class="icon-btn" onclick="openSettings()">⚙️</button>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <div id="confetti-container"></div>
+
+            <!-- LOGIN SCREEN -->
+            <div id="loginScreen" class="screen active">
+                <div class="login-box">
+                    <h2>ENTER ARENA</h2>
+                    <div class="sub-text">DEVELOPED BY AZAN AHMED</div>
+                    <input type="text" id="username" placeholder="Enter Your Name">
+                    <button class="btn-start" onclick="login('ai')">VS COMPUTER</button>
+                    <button class="btn-friend" onclick="login('friend')">2 PLAYERS</button>
+                </div>
+            </div>
+
+            <!-- LEVEL SELECT SCREEN -->
+            <div id="levelScreen" class="screen">
+                <div class="level-container">
+                    <div class="lvl-title">SELECT LEVEL</div>
+                    <div class="lvl-grid" id="lvlGrid"></div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-action btn-back" onclick="logout()">LOGOUT</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GAME SCREEN -->
+            <div id="gameScreen" class="screen">
+                <div class="game-container">
+                    <div class="level-badge" id="levelBadge">LEVEL 1</div>
+                    <div class="status">
+                        <h3 id="statusText" class="blue">YOUR TURN</h3>
+                    </div>
+
+                    <div class="board" id="board">
+                        <div class="cell" onclick="playerMove(0)"></div>
+                        <div class="cell" onclick="playerMove(1)"></div>
+                        <div class="cell" onclick="playerMove(2)"></div>
+                        <div class="cell" onclick="playerMove(3)"></div>
+                        <div class="cell" onclick="playerMove(4)"></div>
+                        <div class="cell" onclick="playerMove(5)"></div>
+                        <div class="cell" onclick="playerMove(6)"></div>
+                        <div class="cell" onclick="playerMove(7)"></div>
+                        <div class="cell" onclick="playerMove(8)"></div>
+                    </div>
+
+                    <!-- Dynamic Action Buttons -->
+                    <div id="actionArea" class="action-buttons"></div>
+
+                    <!-- Simple Stats -->
+                    <div id="simpleStats" class="stats-simple">
+                        Wins: <span class="s-w" id="wScore">0</span> |
+                        Losses: <span class="s-l" id="lScore">0</span> |
+                        Draws: <span class="s-d" id="dScore">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-credit">DEVELOPED BY AZAN AHMED</div>
+        </div>
+
+        <!-- SETTINGS & BACKEND MODAL -->
+        <div id="settingsModal" class="modal-overlay">
+            <div class="modal-box">
+                <h3>SETTINGS & BACKEND</h3>
+                <div class="backend-info" id="backendData">
+                    Loading database...
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <p style="margin-bottom: 10px;">Mode: <span id="modeDisplay"
+                            style="color: var(--neon-gold)">AI</span></p>
+                </div>
+                <button class="btn-action btn-start" onclick="openLevelsFromSettings()"
+                    style="margin-bottom: 10px;">SELECT LEVEL</button>
+                <button class="btn-action btn-restart" onclick="resetAllData()" style="margin-bottom: 10px;">RESET ALL
+                    DATA</button>
+                <button class="btn-action btn-back" onclick="closeSettings()">CLOSE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+        let playerName = "";
+        let currentLevel = 1;
+        let unlockedLevel = 1;
+        let gameMode = "ai";
+        let turn = "X";
+        let stats = { wins: 0, losses: 0, draws: 0 };
+
+        // --- SOUND SYSTEM (NO INTERNET NEEDED) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'win') {
+                // Victory Tune
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'lose') {
+                // Sad Trombone
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.5);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'draw') {
+                // Neutral beep
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        // --- DOM ELEMENTS ---
+        const statusText = document.getElementById("statusText");
+        const levelBadge = document.getElementById("levelBadge");
+        const actionArea = document.getElementById("actionArea");
+
+        // --- 1. INIT & NAVIGATION ---
+
+        function login(mode) {
+            let name = document.getElementById("username").value.trim();
+            if (name === "") {
+                document.getElementById("username").style.borderColor = "red";
+                return;
+            }
+            playSound('click'); // Sound on start
+            playerName = name;
+            gameMode = mode;
+            localStorage.setItem("player", name);
+            localStorage.setItem("mode", mode);
+
+            document.getElementById('modeDisplay').innerText = mode === 'ai' ? 'VS AI' : '2 PLAYERS';
+
+            if (mode === 'ai') {
+                loadStats();
+                showScreen('level');
+                generateLevels();
+            } else {
+                currentLevel = 1;
+                startGame(1);
+            }
+        }
+
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if (screenName === 'login') document.getElementById("loginScreen").classList.add('active');
+            if (screenName === 'level') document.getElementById("levelScreen").classList.add('active');
+            if (screenName === 'game') document.getElementById("gameScreen").classList.add('active');
+        }
+
+        function logout() {
+            playSound('click');
+            localStorage.removeItem("player");
+            localStorage.removeItem("mode");
+            showScreen('login');
+            document.getElementById("username").value = "";
+        }
+
+        window.onload = function () {
+            updateBackendInfo(); // Load backend info
+            let savedName = localStorage.getItem("player");
+            let savedMode = localStorage.getItem("mode");
+            if (savedName && savedMode) {
+                playerName = savedName;
+                gameMode = savedMode;
+                document.getElementById('username').value = savedName;
+                if (savedMode === 'ai') {
+                    loadStats();
+                    unlockedLevel = stats.wins + 1;
+                    showScreen('level');
+                    generateLevels();
+                } else {
+                    startGame(1);
+                }
+            }
+        };
+
+        // --- 2. LEVEL SYSTEM ---
+
+        function generateLevels() {
+            unlockedLevel = stats.wins + 1;
+            let grid = document.getElementById('lvlGrid');
+            grid.innerHTML = "";
+
+            // Generate next 20 levels dynamically, or fill grid
+            // We show up to unlocked + 2 locked for UI purposes
+            let maxShow = unlockedLevel + 2;
+
+            for (let i = 1; i <= maxShow; i++) {
+                let isLocked = i > unlockedLevel;
+                let html = `
+                    <div class="lvl-box ${isLocked ? 'locked' : ''}" onclick="${isLocked ? 'lockedAlert()' : `startGame(${i})`}">
+                        ${isLocked ? '<span class="lock-icon">🔒</span>' : ''}
+                        <div class="lvl-num">${i}</div>
+                        <div class="lvl-status">${isLocked ? 'LOCKED' : 'PLAY'}</div>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            }
+        }
+
+        function lockedAlert() {
+            playSound('draw'); // Click/locked sound
+            alert("Win previous levels to unlock this one!");
+        }
+
+        function startGame(lvl) {
+            playSound('click');
+            closeSettings();
+            currentLevel = lvl;
+            showScreen('game');
+
+            levelBadge.innerText = (gameMode === 'ai') ? "LEVEL " + lvl : "2 PLAYERS";
+
+            resetBoard();
+            updateStatsUI();
+            actionArea.innerHTML = `<button class="btn-action btn-back" onclick="backToLevels()">BACK</button>`;
+        }
+
+        function backToLevels() {
+            playSound('click');
+            if (gameMode === 'ai') {
+                showScreen('level');
+                generateLevels();
+            } else {
+                showScreen('login');
+            }
+        }
+
+        // --- 3. GAME LOGIC ---
+
+        function playerMove(index) {
+            if (board[index] !== "" || !gameActive) return;
+            playSound('click'); // Move sound
+
+            let mark = (gameMode === 'ai') ? "X" : turn;
+
+            board[index] = mark;
+            updateBoard();
+
+            if (checkWin(mark)) {
+                handleWin(mark);
+                return;
+            }
+
+            if (!board.includes("")) {
+                handleDraw();
+                return;
+            }
+
+            if (gameMode === 'ai') {
+                statusText.innerText = "AI THINKING...";
+                statusText.className = "pink";
+                setTimeout(computerMove, 500);
+            } else {
+                turn = (turn === "X") ? "O" : "X";
+                statusText.innerText = `PLAYER ${turn}'S TURN`;
+                statusText.className = (turn === "X") ? "blue" : "pink";
+            }
+        }
+
+        function computerMove() {
+            if (!gameActive) return;
+            let move = -1;
+
+            if (currentLevel >= 4) {
+                move = findBestMove("O");
+                if (move === -1 && currentLevel >= 5) move = findBestMove("X");
+                if (move === -1 && board[4] === "") move = 4;
+            }
+
+            if (move === -1) {
+                let empty = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
+                if (empty.length > 0) {
+                    if (currentLevel >= 8) {
+                        let corners = [0, 2, 6, 8].filter(i => board[i] === "");
+                        if (corners.length) move = corners[Math.floor(Math.random() * corners.length)];
+                    }
+                    if (move === -1) move = empty[Math.floor(Math.random() * empty.length)];
+                }
+            }
+
+            if (move !== -1) {
+                playSound('click'); // AI move sound
+                board[move] = "O";
+                updateBoard();
+
+                if (checkWin("O")) {
+                    handleLoss();
+                    return;
+                }
+                if (!board.includes("")) {
+                    handleDraw();
+                    return;
+                }
+            }
+
+            statusText.innerText = "YOUR TURN";
+            statusText.className = "blue";
+        }
+
+        function findBestMove(player) {
+            let combos = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+            for (let c of combos) {
+                let [a, b, c2] = c;
+                let line = [board[a], board[b], board[c2]];
+                if (line.filter(x => x === player).length === 2 && line.includes("")) {
+                    if (board[a] === "") return a;
+                    if (board[b] === "") return b;
+                    if (board[c2] === "") return c2;
+                }
+            }
+            return -1;
+        }
+
+        function checkWin(player) {
+            let combos = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+            for (let c of combos) {
+                if (c.every(i => board[i] === player)) {
+                    c.forEach(i => document.querySelectorAll(".cell")[i].classList.add("win"));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function updateBoard() {
+            let cells = document.querySelectorAll(".cell");
+            cells.forEach((cell, i) => {
+                cell.innerText = board[i];
+                if (board[i] === "X") cell.classList.add("x");
+                if (board[i] === "O") cell.classList.add("o");
+            });
+        }
+
+        function resetBoard() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            turn = "X";
+            document.getElementById('confetti-container').innerHTML = "";
+            statusText.innerText = (gameMode === 'ai') ? "YOUR TURN" : "PLAYER X's TURN";
+            statusText.className = "blue";
+
+            let cells = document.querySelectorAll(".cell");
+            cells.forEach(cell => { cell.innerText = ""; cell.className = "cell"; });
+        }
+
+        // --- 4. RESULTS & BUTTONS ---
+
+        function handleWin(winner) {
+            gameActive = false;
+            playSound('win'); // Win Sound
+
+            if (gameMode === 'ai') {
+                statusText.innerText = "YOU WIN!";
+                statusText.className = "green";
+                stats.wins++;
+                saveStats();
+                triggerConfetti('party');
+                actionArea.innerHTML = `<button class="btn-action btn-next" onclick="nextLevel()">NEXT LEVEL →</button><button class="btn-action btn-back" onclick="backToLevels()">BACK</button>`;
+            } else {
+                statusText.innerText = `PLAYER ${winner} WINS!`;
+                statusText.className = "green";
+                triggerConfetti('party');
+                actionArea.innerHTML = `<button class="btn-action btn-next" onclick="startGame(1)">PLAY AGAIN</button><button class="btn-action btn-back" onclick="showScreen('login')">HOME</button>`;
+            }
+        }
+
+        function handleLoss() {
+            gameActive = false;
+            playSound('lose'); // Lose Sound
+            statusText.innerText = "YOU LOSE!";
+            statusText.className = "pink";
+            stats.losses++;
+            saveStats();
+            triggerConfetti('sad');
+            actionArea.innerHTML = `<button class="btn-action btn-restart" onclick="startGame(currentLevel)">RESTART LEVEL</button><button class="btn-action btn-back" onclick="backToLevels()">BACK</button>`;
+        }
+
+        function handleDraw() {
+            gameActive = false;
+            playSound('draw'); // Draw Sound
+            statusText.innerText = "DRAW!";
+            statusText.className = "gold";
+            if (gameMode === 'ai') { stats.draws++; saveStats(); }
+            triggerConfetti('clap');
+            actionArea.innerHTML = `<button class="btn-action btn-restart" onclick="startGame(currentLevel)">RESTART LEVEL</button><button class="btn-action btn-back" onclick="backToLevels()">BACK</button>`;
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            startGame(currentLevel);
+        }
+
+        // --- 5. ANIMATIONS ---
+
+        function triggerConfetti(type) {
+            const container = document.getElementById('confetti-container');
+            for (let i = 0; i < 40; i++) {
+                let p = document.createElement('div');
+                p.classList.add('confetti');
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+
+                if (type === 'party') {
+                    p.style.width = '10px'; p.style.height = '10px';
+                    p.style.backgroundColor = ['#ff0', '#0ff', '#f0f', '#0f0', '#f00'][Math.floor(Math.random() * 5)];
+                } else if (type === 'sad') {
+                    p.innerText = '😢'; p.style.fontSize = '24px';
+                } else {
+                    p.innerText = '👏'; p.style.fontSize = '24px';
+                }
+                container.appendChild(p);
+            }
+        }
+
+        // --- 6. STATS & BACKEND ---
+
+        function loadStats() {
+            let s = localStorage.getItem("ttt_stats");
+            if (s) stats = JSON.parse(s);
+        }
+
+        function saveStats() {
+            localStorage.setItem("ttt_stats", JSON.stringify(stats));
+            updateStatsUI();
+            generateLevels(); // Update locks
+            updateBackendInfo();
+        }
+
+        function updateStatsUI() {
+            document.getElementById("wScore").innerText = stats.wins;
+            document.getElementById("lScore").innerText = stats.losses;
+            document.getElementById("dScore").innerText = stats.draws;
+        }
+
+        function updateBackendInfo() {
+            let data = {
+                player: localStorage.getItem("player") || "Guest",
+                mode: localStorage.getItem("mode") || "None",
+                stats: JSON.parse(localStorage.getItem("ttt_stats") || "{}")
+            };
+            document.getElementById("backendData").innerHTML = `
+                <strong>User:</strong> ${data.player}<br>
+                <strong>Mode:</strong> ${data.mode}<br>
+                <strong>DB Stats:</strong> W:${data.stats.wins || 0} L:${data.stats.losses || 0} D:${data.stats.draws || 0}
+            `;
+        }
+
+        function resetAllData() {
+            if (confirm("ARE YOU SURE? This will delete all user data.")) {
+                localStorage.clear();
+                stats = { wins: 0, losses: 0, draws: 0 };
+                playerName = "";
+                updateBackendInfo();
+                alert("Data Cleared! Reloading...");
+                location.reload();
+            }
+        }
+
+        function openSettings() {
+            updateBackendInfo();
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+        function openLevelsFromSettings() {
+            closeSettings();
+            if (gameMode === 'ai') {
+                backToLevels();
+            } else {
+                alert("Levels are only for Single Player mode.");
+            }
+        }
+
+    </script>
+</body>
+
+</html>
